@@ -33,75 +33,75 @@ volatile unsigned short led_timer = 0;
 
 
 // Module Functions ------------------------------------------------------------
-void Led1_On (void)
+void Led_Slave_On (void)
 {
-    ENA_CH1_ON;
+    LED_SLAVE_ON;
 }
 
 
-void Led2_On (void)
+void Led_Master_On (void)
 {
-    ENA_CH2_ON;
+    LED_MASTER_ON;
 }
 
 
-void Led3_On (void)
+void Led_Error_On (void)
 {
-    ENA_CH3_ON;
+    LED_ERROR_ON;
 }
 
 
-void Led1_Off (void)
+void Led_Slave_Off (void)
 {
-    ENA_CH1_OFF;
+    LED_SLAVE_OFF;
 }
 
 
-void Led2_Off (void)
+void Led_Master_Off (void)
 {
-    ENA_CH2_OFF;
+    LED_MASTER_OFF;
 }
 
 
-void Led3_Off (void)
+void Led_Error_Off (void)
 {
-    ENA_CH3_OFF;
+    LED_ERROR_OFF;
 }
 
 
-unsigned char Led1_Is_On (void)
+unsigned char Led_Slave_Is_On (void)
 {
-    return ENA_CH1;
+    return LED_SLAVE;
 }
 
 
-unsigned char Led2_Is_On (void)
+unsigned char Led_Master_Is_On (void)
 {
-    return ENA_CH2;
+    return LED_MASTER;
 }
 
 
-unsigned char Led3_Is_On (void)
+unsigned char Led_Error_Is_On (void)
 {
-    return ENA_CH3;
+    return LED_ERROR;
 }
 
 
 unsigned char Master_Pin (void)
 {
-    return ENA_CH3;
+    return MASTER_SLAVE;
 }
 
 
 void Enable_DE (void)
 {
-    ENA_CH3_ON;
+    SW_RX_TX_ON;
 }
 
 
 void Disable_DE (void)
 {
-    ENA_CH3_OFF;
+    SW_RX_TX_OFF;
 }
 
 
@@ -119,27 +119,21 @@ void Update_Led_Voltage (void)
         if (!led_timer)
         {
             led_timer = 200;
-            if (Led3_Is_On())
-                Led3_Off();
+            if (Led_Error_Is_On())
+                Led_Error_Off();
             else
-                Led3_On();
+                Led_Error_On();
         }
         break;
 
     case LED_UNDERVOLTAGE:
-        Led3_On();
+        Led_Error_On();
         break;
 
     case LED_VOLTAGE_GOOD:
-        Led3_Off();
+        Led_Error_Off();
         break;
     }
-}
-
-
-void Hard_GetHardSoft (char * buff)
-{
-    sprintf(buff, "%s %s\n", HARD, SOFT);
 }
 
 
@@ -149,109 +143,5 @@ void Hard_Timeouts (void)
         led_timer--;
     
 }
-// void Hard_GetVoltages (char * buff)
-// {
-//     ADC_START;
-//     Wait_ms(1);
 
-//     sprintf(buff, "%d %d %d %d %d %d\n",
-//             SENSE_POWER,
-//             SENSE_MEAS,
-//             V_SENSE_28V,
-//             V_SENSE_25V,
-//             V_SENSE_11V,
-//             V_SENSE_8V);
-
-// }
-
-
-// void Hard_GetVoltages_Complete (void)
-// {
-//     char buff [50];
-//     int calc_int, calc_dec;
-    
-//     ADC_START;
-//     Wait_ms(1);
-
-//     sprintf(buff, "%d %d %d %d %d %d\n",
-//             SENSE_POWER,
-//             SENSE_MEAS,
-//             V_SENSE_28V,
-//             V_SENSE_25V,
-//             V_SENSE_11V,
-//             V_SENSE_8V);
-
-//     Usart1Send (buff);
-
-//     // SENSE_POWER resistor multiplier 11
-//     calc_int = SENSE_POWER * 330 * 11;
-//     calc_int >>= 12;
-//     calc_dec = calc_int;
-//     calc_int = calc_int / 100;
-//     calc_dec = calc_dec - calc_int * 100;
-//     sprintf(buff, "Power: %d.%02dV, ", calc_int, calc_dec);
-//     Usart1Send (buff);
-
-//     // SENSE_MEAS resistor multiplier 2
-//     calc_int = SENSE_MEAS * 330 * 2;
-//     calc_int >>= 12;
-//     calc_dec = calc_int;
-//     calc_int = calc_int / 100;
-//     calc_dec = calc_dec - calc_int * 100;
-//     sprintf(buff, "Meas: %d.%02dV, ", calc_int, calc_dec);
-//     Usart1Send (buff);
-
-//     // V_SENSE_28V resistor multiplier 11
-//     calc_int = V_SENSE_28V * 330 * 11;
-//     calc_int >>= 12;
-//     calc_dec = calc_int;
-//     calc_int = calc_int / 100;
-//     calc_dec = calc_dec - calc_int * 100;
-//     sprintf(buff, "V28: %d.%02dV, ", calc_int, calc_dec);
-//     Usart1Send (buff);
-
-//     // V_SENSE_25V resistor multiplier 11
-//     calc_int = V_SENSE_25V * 330 * 11;
-//     calc_int >>= 12;
-//     calc_dec = calc_int;
-//     calc_int = calc_int / 100;
-//     calc_dec = calc_dec - calc_int * 100;
-//     sprintf(buff, "V25: %d.%02dV, ", calc_int, calc_dec);
-//     Usart1Send (buff);
-
-//     // V_SENSE_11V resistor multiplier 11
-//     calc_int = V_SENSE_11V * 330 * 11;
-//     calc_int >>= 12;
-//     calc_dec = calc_int;
-//     calc_int = calc_int / 100;
-//     calc_dec = calc_dec - calc_int * 100;
-//     sprintf(buff, "V11: %d.%02dV, ", calc_int, calc_dec);
-//     Usart1Send (buff);
-
-//     // V_SENSE_8V resistor multiplier 11
-//     calc_int = V_SENSE_8V * 330 * 11;
-//     calc_int >>= 12;
-//     calc_dec = calc_int;
-//     calc_int = calc_int / 100;
-//     calc_dec = calc_dec - calc_int * 100;
-//     sprintf(buff, "V8: %d.%02dV\n", calc_int, calc_dec);
-//     Usart1Send (buff);
-    
-// }
-
-void Tx_Pin_On (void)
-{
-    PB7_ON;
-}
-
-
-void Tx_Pin_Off (void)
-{
-    PB7_OFF;
-}
-
-unsigned char Rx_Pin (void)
-{
-    return PB6;
-}
 //--- end of file ---//

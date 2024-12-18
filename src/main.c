@@ -87,13 +87,13 @@ int main (void)
     {
         Master_Slave_Config(MASTER_CONFIG);
 
-        Led1_On();
-        Led2_On();
-        Led3_On();
+        Led_Slave_On();
+        Led_Master_On();
+        Led_Error_On();
         Wait_ms (1000);
-        Led1_Off();
-        Led2_Off();
-        Led3_Off();
+        Led_Slave_Off();
+        Led_Master_Off();
+        Led_Error_Off();
         
     }
     else
@@ -102,13 +102,13 @@ int main (void)
 
         for (int i = 0; i < 3; i++)
         {
-            Led1_On();
-            Led2_On();
-            Led3_On();
+            Led_Slave_On();
+            Led_Master_On();
+            Led_Error_On();
             Wait_ms (1000);
-            Led1_Off();
-            Led2_Off();
-            Led3_Off();
+            Led_Slave_Off();
+            Led_Master_Off();
+            Led_Error_Off();
         }
         
     }

@@ -15,7 +15,7 @@
 
 
 // Module Private Types Constants and Macros -----------------------------------
-#define USE_EXTI_LINES
+// #define USE_EXTI_LINES
 
 
 #define RCC_GPIOA_CLK    (RCC->APB2ENR & 0x00000004)
@@ -98,90 +98,90 @@ void GpioInit (void)
         RCC_GPIOD_CLKEN;
 
     //--- GPIOA Low Side ------------------//
-    // PA0 ENA_ENCODER
+    // PA0 NC
     // PA1 NC
-    // PA2 alternative Tx Usart2
-    // PA3 alternative Rx Usart2
-    // PA4 Analog Channel 4 (SENSE_12V_EXT)
-    // PA5 Analog Channel 5 (SENSE_BAT_A)
-    // PA6 Analog Channel 6 (SENSE_BAT_B)
+    // PA2 Alternative Tx Usart2 open drain
+    // PA3 Alternative Rx Usart2
+    // PA4 NC
+    // PA5 NC
+    // PA6 NC
     // PA7 NC
     temp = GPIOA->CRL;
-    temp &= 0xF00000F0;
-    temp |= 0x00008B02;
+    temp &= 0xFFFF00FF;
+    temp |= 0x00006F00;
     GPIOA->CRL = temp;
 
     //--- GPIOA High Side ------------------//
-    //PA8 ENA_BOOST
-    //PA9 alternative Tx Usart1
+    //PA8 NC
+    //PA9 alternative Tx Usart1 open drain
     //PA10 alternative Rx Usart1
-    //PA11 PROBE_SENSE_CH4
-    //PA12 ACT_PROBE_CH4
+    //PA11 NC
+    //PA12 NC
     //PA13 NC
     //PA14 NC
     //PA15 NC
     temp = GPIOA->CRH;
-    temp &= 0xFFF00000;
-    temp |= 0x000288B2;
+    temp &= 0xFFFFF00F;
+    temp |= 0x000006F0;
     GPIOA->CRH = temp;
 
     //--- GPIOA Pull-Up Pull-Dwn ------------------//
-    temp = GPIOA->ODR;    //PA3 pull-up; PA11 pull-up    
-    temp &= 0xF7F7;       // PA10 NO pull-up;
-    temp |= 0x0808;
+    temp = GPIOA->ODR;    //
+    temp &= 0xFFFF;       //
+    temp |= 0x0000;
     GPIOA->ODR = temp;
 
     //--- GPIOB Low Side -------------------//
-    //PB0 ACT_PROBE_CH2
-    //PB1 SYNC_CH2
-    //PB2 ENA_CH2
+    //PB0 NC
+    //PB1 NC
+    //PB2 SW_RX_TX
     //PB3 NC jtag
     //PB4 NC jtag
     //PB5 NC
-    //PB6 Rx pin bit bang
-    //PB7 Tx pin bit bang
+    //PB6 NC
+    //PB7 NC
     temp = GPIOB->CRL;
-    temp &= 0x00FFF000;
-    temp |= 0x24000222;
+    temp &= 0xFFFFF0FF;
+    temp |= 0x00000200;
     GPIOB->CRL = temp;
 
     //--- GPIOB High Side -------------------//
-    //PB8 SYNC_CH4
-    //PB9 ENA_CH4
+    //PB8 NC
+    //PB9 NC
     //PB10 alternative Tx Usart3
     //PB11 alternative Rx Usart3
-    //PB12 PROBE_SENSE_CH3
-    //PB13 ACT_PROBE_CH3
-    //PB14 SYNC_CH3
-    //PB15 ENA_CH3
+    //PB12 LED_SLAVE
+    //PB13 LED_MASTER
+    //PB14 LED_ERROR
+    //PB15 MASTER_SLAVE
     temp = GPIOB->CRH;
-    temp &= 0x00000000;
-    temp |= 0x22288B22;
+    temp &= 0x000000FF;
+    temp |= 0x82226200;
     GPIOB->CRH = temp;    
     
     //--- GPIOB Pull-Up Pull-Dwn ------------------//
-    temp = GPIOB->ODR;    //PB11 pull-up; PB12 pull-up
-    temp &= 0xE7FF;
-    temp |= 0x1800;
+    temp = GPIOB->ODR;    //PB15 pull-up
+    temp &= 0x7FFF;
+    temp |= 0x8000;
     GPIOB->ODR = temp;
 
     //--- GPIOC Low Side -------------------//
-    //PC0 PROBE_SENSE_CH1
-    //PC1 ACT_PROBE_CH1
-    //PC2 SYNC_CH1
-    //PC3 ENA_CH1
-    //PC4 NC
-    //PC5 PROBE_SENSE_CH2
+    //PC0 NC
+    //PC1 NC
+    //PC2 NC
+    //PC3 NC
+    //PC4 Analog input
+    //PC5 NC
     //PC6 NC
-    //PC7 ENA_5V_COMM
+    //PC7 NC
     temp = GPIOC->CRL;
-    temp &= 0x0F0F0000;
-    temp |= 0x20802228;
+    temp &= 0xFFF0FFFF;
+    temp |= 0x00000000;
     GPIOC->CRL = temp;
 
     //--- GPIOC High Side -------------------//
-    //PC8 ENA_LCD
-    //PC9 ENA_RPI
+    //PC8 NC
+    //PC9 NC
     //PC10 Alternative Uart4 Tx
     //PC11 Alternative Uart4 Rx
     //PC12 Alternative Uart5 Tx
@@ -189,14 +189,14 @@ void GpioInit (void)
     //PC14 NC    oscillator
     //PC15 NC    oscillator
     temp = GPIOC->CRH;   
-    temp &= 0xFFF00000;
-    temp |= 0x000B8B22;
+    temp &= 0xFFF000FF;
+    temp |= 0x000F6F00;
     GPIOC->CRH = temp;
 
     //--- GPIOC Pull-Up Pull-Dwn ------------------//
-    temp = GPIOC->ODR;    //PC0 pull-up; PC5 pull-up; PC11 pull-up
-    temp &= 0xF7DE;
-    temp |= 0x0821;
+    temp = GPIOC->ODR;    //
+    temp &= 0xFFFF;
+    temp |= 0x0000;
     GPIOC->ODR = temp;
 
     //--- GPIOD Low Side -------------------//
@@ -210,13 +210,13 @@ void GpioInit (void)
     //PD7 No implemented    
     temp = GPIOD->CRL;   
     temp &= 0xFFFFF0FF;
-    temp |= 0x00000800;
+    temp |= 0x00000600;
     GPIOD->CRL = temp;
 
     //--- GPIOD Pull-Up Pull-Dwn ------------------//
-    temp = GPIOD->ODR;    //PC0 pull-up; PC5 pull-up; PC11 pull-up
-    temp &= 0xFFFB;
-    temp |= 0x0004;
+    temp = GPIOD->ODR;    //
+    temp &= 0xFFFF;
+    temp |= 0x0000;
     GPIOD->ODR = temp;
     
 #ifdef USE_EXTI_LINES

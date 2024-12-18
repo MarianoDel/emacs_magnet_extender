@@ -76,7 +76,7 @@ void Master_Slave_In_Master (void)
     switch (master_state)
     {
     case master_ready_to_send_data:
-        Led1_On();
+        Led_Slave_On();
         master_timer = 1;
         Enable_DE();
         master_state++;
@@ -102,7 +102,7 @@ void Master_Slave_In_Master (void)
         if (!master_timer)
         {
             Disable_DE();
-            Led1_Off();
+            Led_Slave_Off();
             master_timer = 150;
             master_state++;            
         }
@@ -127,7 +127,7 @@ void Master_Slave_In_Slave (void)
         if (Comms_Get_Packet_Ready())
         {
             Comms_Reset_Packet_Ready();
-            Led2_On();
+            Led_Master_On();
             slave_timer = 1;
             Enable_DE();
             slave_state++;
@@ -154,7 +154,7 @@ void Master_Slave_In_Slave (void)
         if (!slave_timer)
         {
             Disable_DE();
-            Led2_Off();
+            Led_Master_Off();
             slave_state = slave_wait_to_get_data;
         }
         break;

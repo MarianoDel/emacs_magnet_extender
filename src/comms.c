@@ -38,15 +38,15 @@ char buff_ch4 [BUFFS_QTTY][SIZEOF_BUFFS];
 
 char buff_tx_485 [SIZEOF_BUFFS * 4];
 
-char * ptx1;
-char * ptx2;
-char * ptx3;
-char * ptx4;
+char * ptx_ch1;
+char * ptx_ch2;
+char * ptx_ch3;
+char * ptx_ch4;
 
-char * prx1;
-char * prx2;
-char * prx3;
-char * prx4;
+char * prx_ch1;
+char * prx_ch2;
+char * prx_ch3;
+char * prx_ch4;
 
 unsigned char comms_pckt_ready = 0;
 
@@ -68,15 +68,15 @@ void Comms_Channel4 (void);
 
 void Comms_Init (void)
 {
-    ptx1 = &buff_ch1[0][0];
-    ptx2 = &buff_ch2[0][0];
-    ptx3 = &buff_ch3[0][0];
-    ptx4 = &buff_ch4[0][0];
+    ptx_ch1 = &buff_ch1[0][0];
+    ptx_ch2 = &buff_ch2[0][0];
+    ptx_ch3 = &buff_ch3[0][0];
+    ptx_ch4 = &buff_ch4[0][0];
 
-    prx1 = &buff_ch1[0][0];
-    prx2 = &buff_ch2[0][0];
-    prx3 = &buff_ch3[0][0];
-    prx4 = &buff_ch4[0][0];        
+    prx_ch1 = &buff_ch1[0][0];
+    prx_ch2 = &buff_ch2[0][0];
+    prx_ch3 = &buff_ch3[0][0];
+    prx_ch4 = &buff_ch4[0][0];        
 }
 
 
@@ -162,57 +162,57 @@ void Comms_Send_Rs485_Tx_Buff (void)
 {
     // copy each string to send
     // channel 1
-    if (prx1 != ptx1)
+    if (prx_ch1 != ptx_ch1)
     {
-        strcpy(buff_tx_485, ptx1);
+        strcpy(buff_tx_485, ptx_ch1);
         strcat(buff_tx_485, ";");
 
-        if (ptx1 < &buff_ch1[4][0])
-            ptx1 += SIZEOF_BUFFS;
+        if (ptx_ch1 < &buff_ch1[4][0])
+            ptx_ch1 += SIZEOF_BUFFS;
         else
-            ptx1 = &buff_ch1[0][0];
+            ptx_ch1 = &buff_ch1[0][0];
     }
     else
         strcpy(buff_tx_485, ";");
 
     // channel 2
-    if (prx2 != ptx2)
+    if (prx_ch2 != ptx_ch2)
     {
-        strcat(buff_tx_485, ptx2);
+        strcat(buff_tx_485, ptx_ch2);
         strcat(buff_tx_485, ";");
 
-        if (ptx2 < &buff_ch2[4][0])
-            ptx2 += SIZEOF_BUFFS;
+        if (ptx_ch2 < &buff_ch2[4][0])
+            ptx_ch2 += SIZEOF_BUFFS;
         else
-            ptx2 = &buff_ch2[0][0];
+            ptx_ch2 = &buff_ch2[0][0];
     }
     else
         strcat(buff_tx_485, ";");
 
     // channel 3
-    if (prx3 != ptx3)
+    if (prx_ch3 != ptx_ch3)
     {
-        strcat(buff_tx_485, ptx3);
+        strcat(buff_tx_485, ptx_ch3);
         strcat(buff_tx_485, ";");
 
-        if (ptx3 < &buff_ch3[4][0])
-            ptx3 += SIZEOF_BUFFS;
+        if (ptx_ch3 < &buff_ch3[4][0])
+            ptx_ch3 += SIZEOF_BUFFS;
         else
-            ptx3 = &buff_ch3[0][0];
+            ptx_ch3 = &buff_ch3[0][0];
     }
     else
         strcat(buff_tx_485, ";");
 
     // channel 4
-    if (prx4 != ptx4)
+    if (prx_ch4 != ptx_ch4)
     {
-        strcat(buff_tx_485, ptx4);
+        strcat(buff_tx_485, ptx_ch4);
         strcat(buff_tx_485, ";");
 
-        if (ptx4 < &buff_ch4[4][0])
-            ptx4 += SIZEOF_BUFFS;
+        if (ptx_ch4 < &buff_ch4[4][0])
+            ptx_ch4 += SIZEOF_BUFFS;
         else
-            ptx4 = &buff_ch4[0][0];
+            ptx_ch4 = &buff_ch4[0][0];
     }
     else
         strcat(buff_tx_485, ";");
@@ -237,42 +237,42 @@ void Comms_Fill_Rs485_Tx_Buff (unsigned char which_ch, char * buff)
     switch (which_ch)
     {
     case 0:
-        strncpy(prx1, buff, len);
+        strncpy(prx_ch1, buff, len);
         
-        if (prx1 < &buff_ch1[4][0])
-            prx1 += SIZEOF_BUFFS;
+        if (prx_ch1 < &buff_ch1[4][0])
+            prx_ch1 += SIZEOF_BUFFS;
         else
-            prx1 = &buff_ch1[0][0];
+            prx_ch1 = &buff_ch1[0][0];
 
         break;
 
     case 1:
-        strncpy(prx2, buff, len);
+        strncpy(prx_ch2, buff, len);
         
-        if (prx2 < &buff_ch2[4][0])
-            prx2 += SIZEOF_BUFFS;
+        if (prx_ch2 < &buff_ch2[4][0])
+            prx_ch2 += SIZEOF_BUFFS;
         else
-            prx2 = &buff_ch2[0][0];
+            prx_ch2 = &buff_ch2[0][0];
 
         break;
 
     case 2:
-        strncpy(prx3, buff, len);
+        strncpy(prx_ch3, buff, len);
         
-        if (prx3 < &buff_ch3[4][0])
-            prx3 += SIZEOF_BUFFS;
+        if (prx_ch3 < &buff_ch3[4][0])
+            prx_ch3 += SIZEOF_BUFFS;
         else
-            prx3 = &buff_ch3[0][0];
+            prx_ch3 = &buff_ch3[0][0];
 
         break;
 
     case 3:
-        strncpy(prx4, buff, len);
+        strncpy(prx_ch4, buff, len);
         
-        if (prx4 < &buff_ch4[4][0])
-            prx4 += SIZEOF_BUFFS;
+        if (prx_ch4 < &buff_ch4[4][0])
+            prx_ch4 += SIZEOF_BUFFS;
         else
-            prx4 = &buff_ch4[0][0];
+            prx_ch4 = &buff_ch4[0][0];
 
         break;
     }

@@ -84,20 +84,17 @@ void TF_Led_Test (void)
 {
     while (1)
     {
-        Wait_ms(1000);
+	Led_Slave_Off();
+	Led_Master_Off();
+	Led_Error_Off();
+        Wait_ms(2000);
 
-        if (Led1_Is_On())
-        {
-            Led1_Off();
-            Led2_Off();
-            Led3_Off();
-        }
-        else
-        {
-            Led1_On();
-            Led2_On();
-            Led3_On();
-        }
+	Led_Slave_On();
+	Wait_ms(1000);
+	Led_Master_On();
+	Wait_ms(1000);
+	Led_Error_On();
+	Wait_ms(1000);
     }
 }
 
@@ -114,8 +111,8 @@ void TF_UsartChannel1_Loop (void)
         {
             UsartChannel1Send("Mariano\n");
             timer_standby = 2000;
-            if (Led1_Is_On())
-                Led1_Off();
+            if (Led_Slave_Is_On())
+                Led_Slave_Off();
         }
 
         if (UsartChannel1HaveData())
@@ -123,7 +120,7 @@ void TF_UsartChannel1_Loop (void)
             UsartChannel1HaveDataReset();
             UsartChannel1ReadBuffer(buff, 100);
             if (strncmp(buff, "Mariano", sizeof("Mariano") - 1) == 0)
-                Led1_On();
+                Led_Slave_On();
         }
     }
 }
@@ -141,8 +138,8 @@ void TF_UsartChannel2_Loop (void)
         {
             UsartChannel2Send("Mariano\n");
             timer_standby = 2000;
-            if (Led1_Is_On())
-                Led1_Off();
+            if (Led_Slave_Is_On())
+                Led_Slave_Off();
         }
 
         if (UsartChannel2HaveData())
@@ -150,7 +147,7 @@ void TF_UsartChannel2_Loop (void)
             UsartChannel2HaveDataReset();
             UsartChannel2ReadBuffer(buff, 100);
             if (strncmp(buff, "Mariano", sizeof("Mariano") - 1) == 0)
-                Led1_On();
+                Led_Slave_On();
         }
     }
 }
@@ -169,8 +166,8 @@ void TF_UsartChannel3_Loop (void)
         {
             UsartChannel3Send("Mariano\n");
             timer_standby = 2000;
-            if (Led1_Is_On())
-                Led1_Off();
+            if (Led_Slave_Is_On())
+                Led_Slave_Off();
         }
 
         if (UsartChannel3HaveData())
@@ -178,7 +175,7 @@ void TF_UsartChannel3_Loop (void)
             UsartChannel3HaveDataReset();
             UsartChannel3ReadBuffer(buff, 100);
             if (strncmp(buff, "Mariano", sizeof("Mariano") - 1) == 0)
-                Led1_On();
+                Led_Slave_On();
         }
     }
 }
@@ -197,8 +194,8 @@ void TF_UsartChannel4_Loop (void)
         {
             UsartChannel4Send("Mariano\n");
             timer_standby = 2000;
-            if (Led1_Is_On())
-                Led1_Off();
+            if (Led_Slave_Is_On())
+                Led_Slave_Off();
         }
 
         if (UsartChannel4HaveData())
@@ -206,7 +203,7 @@ void TF_UsartChannel4_Loop (void)
             UsartChannel4HaveDataReset();
             UsartChannel4ReadBuffer(buff, 100);
             if (strncmp(buff, "Mariano", sizeof("Mariano") - 1) == 0)
-                Led1_On();
+                Led_Slave_On();
         }
     }
 }
@@ -225,8 +222,8 @@ void TF_UsartRs485_Loop (void)
         {
             UsartRs485Send ("Mariano\n");
             timer_standby = 2000;
-            if (Led1_Is_On())
-                Led1_Off();
+            if (Led_Slave_Is_On())
+                Led_Slave_Off();
         }
 
         if (UsartRs485HaveData ())
@@ -234,7 +231,7 @@ void TF_UsartRs485_Loop (void)
             UsartRs485HaveDataReset ();
             UsartRs485ReadBuffer (buff, 100);
             if (strncmp(buff, "Mariano", sizeof("Mariano") - 1) == 0)
-                Led1_On();
+                Led_Slave_On();
         }
     }
 }
@@ -267,60 +264,6 @@ void TF_UsartRs485_String (void)
         }
     }
 }
-
-
-void TF_PowerOn_Channel1_Channel2 (void)
-{
-    ENA_BOOST_ON;
-    ENA_CH1_ON;
-    ENA_CH2_ON;
-    
-    while (1);
-}
-
-
-
-
-void TF_Tim6_Int (void)
-{
-    // char buff [100];
-    TIM6_Init ();
-    TIM6_Start();
-    // Bit_Bang_Init ();
-    
-    while (1)
-    {
-        if (timer_6_uif_flag)
-        {
-            timer_6_uif_flag = 0;
-            if (PB7)
-                PB7_OFF;
-            else
-                PB7_ON;
-        }
-    }
-}
-
-
-void TF_Int_Pb6 (void)
-{
-    Wait_ms(1000);
-    
-    EXTIOn();
-    
-    while (1)
-    {
-        if (rx_int_handler)
-        {
-            rx_int_handler = 0;
-            if (PB7)
-                PB7_OFF;
-            else
-                PB7_ON;
-        }
-    }
-}
-
 
 
 //--- end of file ---//

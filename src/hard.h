@@ -93,147 +93,83 @@ enum {
 
 // PA defines ----
 // PA0
-#define ENA_ENCODER    ((GPIOA->ODR & 0x0001) == 0)
-#define ENA_ENCODER_OFF    (GPIOA->BSRR = 0x00000001)
-#define ENA_ENCODER_ON    (GPIOA->BSRR = 0x00010000)
-
 // PA1 NC
-// PA2 PA3 Alternative Usart2 Tx Rx
 
-// PA4 Analog Channel 4 (SENSE_12V_EXT)
-// PA5 Analog Channel 5 (SENSE_BAT_A)
-// PA6 Analog Channel 6 (SENSE_BAT_B)
+// PA2 PA3 Alternative Usart2 Tx Rx (Channel 4)
 
-// PA7 NC
+// PA4
+// PA5
+// PA6
+// PA7
+// PA8 NC
 
-// PA8
-#define ENA_BOOST    ((GPIOA->ODR & 0x0100) != 0)
-#define ENA_BOOST_ON    (GPIOA->BSRR = 0x00000100)
-#define ENA_BOOST_OFF    (GPIOA->BSRR = 0x01000000)
-
-// PA9 PA10 Alternative Usart1 Tx Rx
+// PA9 PA10 Alternative Usart1 Tx Rx (Channel 1)
 
 // PA11
-#define PROBE_SENSE_CH4    ((GPIOA->IDR & 0x0800) == 0)
-
 // PA12
-#define ACT_PROBE_CH4    ((GPIOA->ODR & 0x1000) != 0)
-#define ACT_PROBE_CH4_ON    (GPIOA->BSRR = 0x00001000)
-#define ACT_PROBE_CH4_OFF    (GPIOA->BSRR = 0x10000000)
-
 // PA13 PA14 PA15 NC jtag
 
 // PB defines ----
 // PB0 
-#define ACT_PROBE_CH2    ((GPIOB->ODR & 0x0001) != 0)
-#define ACT_PROBE_CH2_ON    (GPIOB->BSRR = 0x00000001)
-#define ACT_PROBE_CH2_OFF    (GPIOB->BSRR = 0x00010000)
-
-// PB1
-#define SYNC_CH2    ((GPIOB->ODR & 0x0002) != 0)
-#define SYNC_CH2_ON    (GPIOB->BSRR = 0x00000002)
-#define SYNC_CH2_OFF    (GPIOB->BSRR = 0x00020000)
+// PB1 NC
 
 //PB2
-#define ENA_CH2    ((GPIOB->ODR & 0x0004) == 0)
-#define ENA_CH2_OFF    (GPIOB->BSRR = 0x00000004)
-#define ENA_CH2_ON    (GPIOB->BSRR = 0x00040000)
+#define SW_RX_TX    ((GPIOB->ODR & 0x0004) != 0)
+#define SW_RX_TX_ON    (GPIOB->BSRR = 0x00000004)
+#define SW_RX_TX_OFF    (GPIOB->BSRR = 0x00040000)
 
 // PB3 PB4 NC jtag
-// PB5 NC
-
-// PB6 Alternative I2C1_SCL
-// PB7 Alternative I2C1_SDA
-
-// PB6 input Rx bit bang
-#define PB6    ((GPIOB->IDR & 0x0040) != 0)
-
-// PB7 output Tx bit bang
-#define PB7    ((GPIOB->ODR & 0x0080) != 0)
-#define PB7_ON    (GPIOB->BSRR = 0x00000080)
-#define PB7_OFF    (GPIOB->BSRR = 0x00800000)
-
+// PB5 
+// PB6
+// PB7
 // PB8
-#define SYNC_CH4    ((GPIOB->ODR & 0x0100) != 0)
-#define SYNC_CH4_ON    (GPIOB->BSRR = 0x00000100)
-#define SYNC_CH4_OFF    (GPIOB->BSRR = 0x01000000)
+// PB9 NC
 
-// PB9
-#define ENA_CH4    ((GPIOB->ODR & 0x0200) == 0)
-#define ENA_CH4_OFF    (GPIOB->BSRR = 0x00000200)
-#define ENA_CH4_ON    (GPIOB->BSRR = 0x02000000)
-
-// PB10 PB11 Alternative Usart3 Tx Rx
+// PB10 PB11 Alternative Usart3 Tx Rx (Rs485)
 
 // PB12
-#define PROBE_SENSE_CH3    ((GPIOB->IDR & 0x1000) == 0)
+#define LED_SLAVE    ((GPIOB->ODR & 0x1000) != 0)
+#define LED_SLAVE_ON    (GPIOB->BSRR = 0x00001000)
+#define LED_SLAVE_OFF    (GPIOB->BSRR = 0x10000000)
 
 // PB13
-#define ACT_PROBE_CH3    ((GPIOB->ODR & 0x2000) != 0)
-#define ACT_PROBE_CH3_ON    (GPIOB->BSRR = 0x00002000)
-#define ACT_PROBE_CH3_OFF    (GPIOB->BSRR = 0x20000000)
+#define LED_MASTER    ((GPIOB->ODR & 0x2000) != 0)
+#define LED_MASTER_ON    (GPIOB->BSRR = 0x00002000)
+#define LED_MASTER_OFF    (GPIOB->BSRR = 0x20000000)
 
 // PB14
-#define SYNC_CH3    ((GPIOB->ODR & 0x4000) != 0)
-#define SYNC_CH3_ON    (GPIOB->BSRR = 0x00004000)
-#define SYNC_CH3_OFF    (GPIOB->BSRR = 0x40000000)
+#define LED_ERROR    ((GPIOB->ODR & 0x4000) != 0)
+#define LED_ERROR_ON    (GPIOB->BSRR = 0x00004000)
+#define LED_ERROR_OFF    (GPIOB->BSRR = 0x40000000)
 
 // PB15
-#define ENA_CH3    ((GPIOB->ODR & 0x8000) == 0)
-#define ENA_CH3_OFF    (GPIOB->BSRR = 0x00008000)
-#define ENA_CH3_ON    (GPIOB->BSRR = 0x80000000)
+#define MASTER_SLAVE    ((GPIOB->IDR & 0x8000) == 0)
+
 
 // PC defines ----
 // PC0
-#define PROBE_SENSE_CH1    ((GPIOC->IDR & 0x0001) == 0)
-
 // PC1
-#define ACT_PROBE_CH1    ((GPIOC->ODR & 0x0002) != 0)
-#define ACT_PROBE_CH1_ON    (GPIOC->BSRR = 0x00000002)
-#define ACT_PROBE_CH1_OFF    (GPIOC->BSRR = 0x00020000)
-
 // PC2
-#define SYNC_CH1    ((GPIOC->ODR & 0x0004) != 0)
-#define SYNC_CH1_ON    (GPIOC->BSRR = 0x00000004)
-#define SYNC_CH1_OFF    (GPIOC->BSRR = 0x00040000)
+// PC3 NC
 
-// PC3
-#define ENA_CH1    ((GPIOC->ODR & 0x0008) == 0)
-#define ENA_CH1_OFF    (GPIOC->BSRR = 0x00000008)
-#define ENA_CH1_ON    (GPIOC->BSRR = 0x00080000)
-
-// PC4 NC
+// PC4 Analog input VOLT_DETECT 
 
 // PC5
-#define PROBE_SENSE_CH2    ((GPIOC->IDR & 0x0020) == 0)
-
-// PC6 NC
-
+// PC6
 // PC7 
-#define ENA_5V_COMM    ((GPIOC->ODR & 0x0080) == 0)
-#define ENA_5V_COMM_OFF    (GPIOC->BSRR = 0x00000080)
-#define ENA_5V_COMM_ON    (GPIOC->BSRR = 0x00800000)
-
 // PC8
-#define ENA_LCD    ((GPIOC->ODR & 0x0100) != 0)
-#define ENA_LCD_ON    (GPIOC->BSRR = 0x00000100)
-#define ENA_LCD_OFF    (GPIOC->BSRR = 0x01000000)
+// PC9 NC
 
-// PC9
-#define ENA_RPI    ((GPIOC->ODR & 0x0200) == 0)
-#define ENA_RPI_OFF    (GPIOC->BSRR = 0x00000200)
-#define ENA_RPI_ON    (GPIOC->BSRR = 0x02000000)
+// PC10 PC11 Alternative Uart4 Tx Rx (Channel 2)
 
-// PC10 PC11 Alternative Uart4 Tx Rx
-
-// PC12 Alternative Uart5 Tx
+// PC12 Alternative Uart5 Tx (Channel 3)
 
 // PC13 PC14 PC15 NC
 
 // PD defines ----
 // PD0 PD1 NC
 
-// PD2 Alternative Uart5 Rx
+// PD2 Alternative Uart5 Rx (Channel 3)
 
 #endif //HARDWARE_VERSION_1_0
 
@@ -243,17 +179,17 @@ enum {
 void Enable_DE (void);
 void Disable_DE (void);
 
-void Led1_On (void);
-void Led2_On (void);
-void Led3_On (void);
+void Led_Slave_On (void);
+void Led_Master_On (void);
+void Led_Error_On (void);
 
-void Led1_Off (void);
-void Led2_Off (void);
-void Led3_Off (void);
+void Led_Slave_Off (void);
+void Led_Master_Off (void);
+void Led_Error_Off (void);
 
-unsigned char Led1_Is_On (void);
-unsigned char Led2_Is_On (void);
-unsigned char Led3_Is_On (void);
+unsigned char Led_Slave_Is_On (void);
+unsigned char Led_Master_Is_On (void);
+unsigned char Led_Error_Is_On (void);
 
 unsigned char Master_Pin (void);
 
