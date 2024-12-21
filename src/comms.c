@@ -86,6 +86,7 @@ void Comms_Init (void)
 
 void Comms_Parse_Rs485_Rx_Buff (char * pbuff, unsigned short len)
 {
+    // the new string getted is ;;;;; when empty
     unsigned short semi_colon_buff [5] = { 0 };
     unsigned char qtty = 0;
     unsigned char bl = 0;
@@ -99,30 +100,22 @@ void Comms_Parse_Rs485_Rx_Buff (char * pbuff, unsigned short len)
             semi_colon_buff[qtty] = i;
             qtty++;
 
-            if (qtty == 4)
+            if (qtty == 5)
                 break;
         }
     }
 
     // check semi colon qtty
-    if (qtty != 4)
+    if (qtty != 5)
         return;
 
     // resend to channels each buffer
     for (int i = 0; i < 4; i++)
     {
         // buff start and length
-        if (i)
-        {
-            bs = semi_colon_buff[i - 1] + 1;    // count ';'
-            bl = semi_colon_buff[i] - semi_colon_buff[i - 1] - 1;    // count ';'
-        }
-        else
-        {
-            bs = 0;
-            bl = semi_colon_buff[0];
-        }
-
+	bs = semi_colon_buff[i] + 1;    // count ';'
+	bl = semi_colon_buff[i+1] - semi_colon_buff[i] - 1;    // count ';'
+	
         if (bl)
             Comms_Send_Channels_Buffer (i, pbuff + bs, bl);
     }
@@ -183,12 +176,13 @@ void Comms_Send_Rs485_Tx_Buff (void)
     len = strlen(&buff_ch1[0][0]);
     if (len)
     {
-        strcpy(buff_tx_485, &buff_ch1[0][0]);
+	strcpy(buff_tx_485, ";");
+        strcat(buff_tx_485, &buff_ch1[0][0]);
         strcat(buff_tx_485, ";");
 	buff_ch1[0][0] = '\0';
     }
     else
-        strcpy(buff_tx_485, ";");
+        strcpy(buff_tx_485, ";;");
 
     // channel 2
     len = strlen(&buff_ch2[0][0]);
@@ -269,7 +263,8 @@ void Comms_Send_Rs485_Tx_Buff (void)
     // channel 1
     if (prx_ch1 != ptx_ch1)
     {
-        strcpy(buff_tx_485, ptx_ch1);
+	strcpy(buff_tx_485, ";");
+        strcat(buff_tx_485, ptx_ch1);
         strcat(buff_tx_485, ";");
 
         if (ptx_ch1 < &buff_ch1[4][0])
@@ -278,7 +273,7 @@ void Comms_Send_Rs485_Tx_Buff (void)
             ptx_ch1 = &buff_ch1[0][0];
     }
     else
-        strcpy(buff_tx_485, ";");
+        strcpy(buff_tx_485, ";;");
 
     // channel 2
     if (prx_ch2 != ptx_ch2)
