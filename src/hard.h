@@ -35,8 +35,8 @@
 //-------- Kind of Reports Sended ----------------
 
 //-------- Others Configurations depending on the formers ------------
-#define OVERVOLTAGE    2895    // 7V / 3 = 2.33V
-#define UNDERVOLTAGE    1861    // 4.5 / 3 = 1.5V
+#define OVERVOLTAGE    2895    // 6.5V * 0.211 = 1.371V / 3.3V * 4095 = 1702
+#define UNDERVOLTAGE    1181    // 4.5 * 0.211 = 0.952V / 3.3V * 4095 = 1181
 
 enum {
     OVERVOLTAGE_STATUS,

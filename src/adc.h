@@ -91,6 +91,7 @@
 
 // Module Exported Functions ---------------------------------------------------
 void AdcConfig (void);
+void AdcStart (void);
 void AdcSetChannelSampleTime (unsigned char, unsigned char);
 void AdcSetChannelSamplePosition (unsigned char, unsigned char);
 void AdcSetChannelsQuantity (unsigned int);

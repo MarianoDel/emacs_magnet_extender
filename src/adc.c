@@ -121,10 +121,12 @@ void AdcConfig (void)
     // //set the quantity of channels to convert
     // AdcSetChannelsQuantity(ADC_Channels_Qtty_6);
 
-    //set sampling time for each channel
-    AdcSetChannelSampleTime(ADC_Channel_4, ADC_SampleTime_239_5Cycles);
-    AdcSetChannelSampleTime(ADC_Channel_5, ADC_SampleTime_239_5Cycles);
-    AdcSetChannelSampleTime(ADC_Channel_6, ADC_SampleTime_239_5Cycles);
+    // set sampling time for each channel
+    AdcSetChannelSampleTime(ADC_Channel_14, ADC_SampleTime_239_5Cycles);
+    // set regular channel selection, start with 1
+    AdcSetChannelSamplePosition(ADC_Channel_14, 1);
+    // set the quantity of channels to convert
+    AdcSetChannelsQuantity(ADC_Channels_Qtty_1);
     
     
 #ifdef ADC_WITH_INT        
@@ -158,6 +160,15 @@ void AdcConfig (void)
 #endif
     
 }
+
+
+void AdcStart (void)
+{
+    ADC1->CR1 |= ADC_CR1_SCAN;    //convertir toda la secuencia de canales
+    ADC1->CR2 |= ADC_CR2_CONT;    //convertir en forma continua
+    ADC1->CR2 |= ADC_CR2_SWSTART | ADC_CR2_EXTTRIG;        //activo una primera conversion
+}
+
 
 #ifdef ADC_WITH_INT
 void ADC1_COMP_IRQHandler (void)

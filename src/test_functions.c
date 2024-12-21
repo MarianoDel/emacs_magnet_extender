@@ -38,45 +38,45 @@ extern volatile unsigned char rx_int_handler;
 
 // Module Private Functions ----------------------------------------------------
 void TF_Led_Test (void);
+void TF_Master_Input (void);
 
-void TF_Act_Channels (void);
+void TF_Usart_Channel1_Tx (void);
+void TF_Usart_Channel2_Tx (void);
+void TF_Usart_Channel3_Tx (void);
+void TF_Usart_Channel4_Tx (void);
 
-void TF_UsartChannel1_Loop (void);
-void TF_UsartChannel2_Loop (void);
-void TF_UsartChannel3_Loop (void);
-void TF_UsartChannel4_Loop (void);
+void TF_Usart_Channel1_Rx (void);
+void TF_Usart_Channel2_Rx (void);
+void TF_Usart_Channel3_Rx (void);
+void TF_Usart_Channel4_Rx (void);
 
-// void TF_UsartRs485_Loop (void);
-// void TF_UsartRs485_String (void);
+void TF_UsartRs485_Tx (void);
+void TF_UsartRs485_Rx (void);
 
-void TF_PowerOn_Channel1_Channel2 (void);
-
-// void TF_Adc_Usart1_Tx (void);
-// void TF_Adc_Usart1_Voltages (void);
+void TF_Adc_Led_Error (void);
 
 
 // Module Functions ------------------------------------------------------------
 void TF_Hardware_Tests (void)
 {
-    TF_Led_Test ();
+    // TF_Led_Test ();
 
-    // TF_UsartChannel1_Loop ();
-    // TF_UsartChannel2_Loop ();
-    // TF_UsartChannel3_Loop ();
-    // TF_UsartChannel4_Loop ();    
+    // TF_Master_Input ();
 
-    // TF_UsartRs485_Loop ();
-    // TF_UsartRs485_String ();
+    // TF_Usart_Channel1_Tx ();
+    // TF_Usart_Channel2_Tx ();
+    // TF_Usart_Channel3_Tx ();
+    // TF_Usart_Channel4_Tx ();    
 
-    // TF_PowerOn_Channel1_Channel2 ();
+    // TF_Usart_Channel1_Rx ();
+    // TF_Usart_Channel2_Rx ();
+    // TF_Usart_Channel3_Rx ();
+    // TF_Usart_Channel4_Rx ();    
 
-    // TF_Adc_Usart1_Tx ();
-    // TF_Adc_Usart1_Voltages ();
+    // TF_UsartRs485_Tx ();
+    TF_UsartRs485_Rx ();    
 
-    // TF_Tim6_Int ();
-
-    // TF_Int_Pb6();
-
+    // TF_Adc_Led_Error ();
 }
 
 
@@ -99,169 +99,277 @@ void TF_Led_Test (void)
 }
 
 
-void TF_UsartChannel1_Loop (void)
+void TF_Master_Input (void)
+{
+    while (1)
+    {
+	if (Master_Pin())
+	{
+	    Led_Master_On();
+	    Led_Slave_Off();
+	}
+	else
+	{
+	    Led_Master_Off();
+	    Led_Slave_On();
+	}
+
+	Wait_ms(300);
+    }
+}
+
+
+void TF_Adc_Led_Error (void)
+{
+    //-- ADC and DMA configuration
+    AdcConfig ();
+    DMAConfig();
+    DMA1_Channel1->CCR |= DMA_CCR1_EN;
+    AdcStart ();
+
+    while (1)
+    {
+	Led_Slave_On();
+	// if (Voltage_Sense < VSENSE_4_5_V)
+	if (Voltage_Sense < 1181)
+	// if (Voltage_Sense < 2000)
+	{
+	    Led_Error_On();
+	}
+	else
+	    Led_Error_Off();
+
+	Wait_ms(100);
+	Led_Slave_Off();
+
+	Wait_ms(900);
+    }
+}
+
+
+void TF_Usart_Channel1_Tx (void)
+{
+    UsartChannel1Config();
+
+    while (1)
+    {
+	Led_Slave_On();
+	UsartChannel1Send("Channel 1\r\n");
+	Wait_ms(100);
+	Led_Slave_Off();
+	Wait_ms(1900);
+    }
+}
+
+
+void TF_Usart_Channel2_Tx (void)
+{
+    UsartChannel2Config();
+
+    while (1)
+    {
+	Led_Slave_On();
+	UsartChannel2Send("Channel 2\r\n");
+	Wait_ms(100);
+	Led_Slave_Off();
+	Wait_ms(1900);
+    }
+}
+
+
+void TF_Usart_Channel3_Tx (void)
+{
+    UsartChannel3Config();
+
+    while (1)
+    {
+	Led_Slave_On();
+	UsartChannel3Send("Channel 3\r\n");
+	Wait_ms(100);
+	Led_Slave_Off();
+	Wait_ms(1900);
+    }
+}
+
+
+void TF_Usart_Channel4_Tx (void)
+{
+    UsartChannel4Config();
+
+    while (1)
+    {
+	Led_Slave_On();
+	UsartChannel4Send("Channel 4\r\n");
+	Wait_ms(100);
+	Led_Slave_Off();
+	Wait_ms(1900);
+    }
+}
+
+
+void TF_Usart_Channel1_Rx (void)
 {
     char buff [100];
     
     UsartChannel1Config();
-    
+
     while (1)
     {
-        if (!timer_standby)
-        {
-            UsartChannel1Send("Mariano\n");
-            timer_standby = 2000;
-            if (Led_Slave_Is_On())
-                Led_Slave_Off();
-        }
+	if (!timer_standby)
+	{
+	    Led_Slave_Off();
+	    
+	    if (UsartChannel1HaveData())
+	    {
+		UsartChannel1HaveDataReset();
+		UsartChannel1ReadBuffer(buff, 100);
+		if (strncmp(buff, "med", sizeof("med") - 1) == 0)
+		    Led_Slave_On();
+	 
+	    }
 
-        if (UsartChannel1HaveData())
-        {
-            UsartChannel1HaveDataReset();
-            UsartChannel1ReadBuffer(buff, 100);
-            if (strncmp(buff, "Mariano", sizeof("Mariano") - 1) == 0)
-                Led_Slave_On();
-        }
+	    timer_standby = 2000;
+	}
     }
 }
 
 
-void TF_UsartChannel2_Loop (void)
+void TF_Usart_Channel2_Rx (void)
 {
     char buff [100];
     
     UsartChannel2Config();
-    
+
     while (1)
     {
-        if (!timer_standby)
-        {
-            UsartChannel2Send("Mariano\n");
-            timer_standby = 2000;
-            if (Led_Slave_Is_On())
-                Led_Slave_Off();
-        }
+	if (!timer_standby)
+	{
+	    Led_Slave_Off();
+	    
+	    if (UsartChannel2HaveData())
+	    {
+		UsartChannel2HaveDataReset();
+		UsartChannel2ReadBuffer(buff, 100);
+		if (strncmp(buff, "med", sizeof("med") - 1) == 0)
+		    Led_Slave_On();
+	 
+	    }
 
-        if (UsartChannel2HaveData())
-        {
-            UsartChannel2HaveDataReset();
-            UsartChannel2ReadBuffer(buff, 100);
-            if (strncmp(buff, "Mariano", sizeof("Mariano") - 1) == 0)
-                Led_Slave_On();
-        }
+	    timer_standby = 2000;
+	}
     }
 }
 
 
-// place a shortcut on IC4 2 & IC3 4
-void TF_UsartChannel3_Loop (void)
+void TF_Usart_Channel3_Rx (void)
 {
     char buff [100];
     
     UsartChannel3Config();
-    
+
     while (1)
     {
-        if (!timer_standby)
-        {
-            UsartChannel3Send("Mariano\n");
-            timer_standby = 2000;
-            if (Led_Slave_Is_On())
-                Led_Slave_Off();
-        }
+	if (!timer_standby)
+	{
+	    Led_Slave_Off();
+	    
+	    if (UsartChannel3HaveData())
+	    {
+		UsartChannel3HaveDataReset();
+		UsartChannel3ReadBuffer(buff, 100);
+		if (strncmp(buff, "med", sizeof("med") - 1) == 0)
+		    Led_Slave_On();
+	 
+	    }
 
-        if (UsartChannel3HaveData())
-        {
-            UsartChannel3HaveDataReset();
-            UsartChannel3ReadBuffer(buff, 100);
-            if (strncmp(buff, "Mariano", sizeof("Mariano") - 1) == 0)
-                Led_Slave_On();
-        }
+	    timer_standby = 2000;
+	}
     }
 }
 
 
-// place a shortcut on IC4 2 & IC3 4
-void TF_UsartChannel4_Loop (void)
+void TF_Usart_Channel4_Rx (void)
 {
     char buff [100];
     
     UsartChannel4Config();
-    
+
     while (1)
     {
-        if (!timer_standby)
-        {
-            UsartChannel4Send("Mariano\n");
-            timer_standby = 2000;
-            if (Led_Slave_Is_On())
-                Led_Slave_Off();
-        }
+	if (!timer_standby)
+	{
+	    Led_Slave_Off();
+	    
+	    if (UsartChannel4HaveData())
+	    {
+		UsartChannel4HaveDataReset();
+		UsartChannel4ReadBuffer(buff, 100);
+		if (strncmp(buff, "med", sizeof("med") - 1) == 0)
+		    Led_Slave_On();
+	 
+	    }
 
-        if (UsartChannel4HaveData())
-        {
-            UsartChannel4HaveDataReset();
-            UsartChannel4ReadBuffer(buff, 100);
-            if (strncmp(buff, "Mariano", sizeof("Mariano") - 1) == 0)
-                Led_Slave_On();
-        }
-    }
-}
-
-
-// place a shortcut Rx Tx on Rs485 connector
-void TF_UsartRs485_Loop (void)
-{
-    char buff [100];
-    
-    UsartRs485Config ();
-    
-    while (1)
-    {
-        if (!timer_standby)
-        {
-            UsartRs485Send ("Mariano\n");
-            timer_standby = 2000;
-            if (Led_Slave_Is_On())
-                Led_Slave_Off();
-        }
-
-        if (UsartRs485HaveData ())
-        {
-            UsartRs485HaveDataReset ();
-            UsartRs485ReadBuffer (buff, 100);
-            if (strncmp(buff, "Mariano", sizeof("Mariano") - 1) == 0)
-                Led_Slave_On();
-        }
+	    timer_standby = 2000;
+	}
     }
 }
 
 
 // Terminal Looping on Rs485 connector
-void TF_UsartRs485_String (void)
+void TF_UsartRs485_Tx (void)
 {
-    char buff [100];
-
     UsartRs485Config ();
-    UsartRs485Send("rs485 usart test... send a string:\n");
+    Led_Master_On();
     
     while (1)
     {
-        if (UsartRs485HaveData())
-        {
-            UsartRs485HaveDataReset();
-            UsartRs485ReadBuffer(buff, 100);
+	if (!timer_standby)
+	{
+	    timer_standby = 2000;
 
-            Wait_ms(1000);
+	    Led_Master_Off();
+	    Enable_DE();
+	    Wait_ms (1);
+	    UsartRs485Send("Ponete a Laburar!\r\n");
+	    while (!UsartRs485SendFinish());
+	    Wait_ms (1);	    
+	    Disable_DE();
+	    Wait_ms(100);
+	    Led_Master_On();
+	}	    
+    }
+}
 
-            int i = strlen(buff);
-            if (i < 99)
-            {
-                buff[i] = '\n';
-                buff[i+1] = '\0';
-                UsartRs485Send(buff);
-            }
-        }
+
+void TF_UsartRs485_Rx (void)
+{
+    char buff [100];
+    
+    UsartChannel1Config();
+    UsartRs485Config ();
+    Disable_DE();
+    Led_Slave_On();
+    
+    while (1)
+    {
+	if (UsartRs485HaveData())
+	{
+	    Led_Slave_Off();
+	    UsartRs485HaveDataReset();
+	    int len1 = UsartRs485ReadBuffer(buff, 100 - 3);
+
+	    // for tests
+	    char btest[100];
+	    int len2 = strlen(buff);
+	    sprintf(btest, "get len: %d strlen: %d\r\n", len1, len2);
+	    UsartChannel1Send(btest);
+	    UsartChannel1Send(buff);	
+	    UsartChannel1Send("\r\n");
+	    // end for tests
+	    
+	    Wait_ms(100);
+	    Led_Slave_On();
+	}
     }
 }
 

@@ -12,6 +12,7 @@
 #include "usart.h"
 #include "stm32f10x.h"
 #include "hard.h"
+#include "comms.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -21,6 +22,9 @@
 //---- Configurations Defines --------------------
 #define SIZEOF_TXDATA        128
 #define SIZEOF_RXDATA        128
+
+#define SIZEOF_TXDATA3        (4*SIZEOF_TXDATA)
+#define SIZEOF_RXDATA3        (4*SIZEOF_RXDATA)
 
 //---- Common Defines --------------------
 // 0xMMMF    Mantissa MMM Fraction F/16
@@ -83,10 +87,10 @@
 volatile unsigned char * ptx1;
 volatile unsigned char * ptx1_pckt_index;
 volatile unsigned char * prx1;
-volatile unsigned char tx1buff[4*SIZEOF_TXDATA];
-volatile unsigned char rx1buff[4*SIZEOF_RXDATA];
+volatile unsigned char tx1buff[SIZEOF_TXDATA];
+volatile unsigned char rx1buff[SIZEOF_RXDATA];
 volatile unsigned char usart1_have_data = 0;
-volatile unsigned char usart1_in_tx = 0;
+volatile unsigned char usart1_tx_timeout = 0;
 
 //--- USART2 ---//
 volatile unsigned char * ptx2;
@@ -95,13 +99,14 @@ volatile unsigned char * prx2;
 volatile unsigned char tx2buff[SIZEOF_TXDATA];
 volatile unsigned char rx2buff[SIZEOF_RXDATA];
 volatile unsigned char usart2_have_data = 0;
+volatile unsigned char usart2_tx_timeout = 0;
 
 //--- USART3 ---//
 volatile unsigned char * ptx3;
 volatile unsigned char * ptx3_pckt_index;
 volatile unsigned char * prx3;
-volatile unsigned char tx3buff[SIZEOF_TXDATA];
-volatile unsigned char rx3buff[SIZEOF_RXDATA];
+volatile unsigned char tx3buff[4*SIZEOF_TXDATA];
+volatile unsigned char rx3buff[4*SIZEOF_RXDATA];
 volatile unsigned char usart3_have_data = 0;
 
 #ifdef STM32F10X_HD
@@ -112,6 +117,7 @@ volatile unsigned char * prx4;
 volatile unsigned char tx4buff[SIZEOF_TXDATA];
 volatile unsigned char rx4buff[SIZEOF_RXDATA];
 volatile unsigned char uart4_have_data = 0;
+volatile unsigned char uart4_tx_timeout = 0;
 
 //--- UART5 ---//
 volatile unsigned char * ptx5;
@@ -120,9 +126,35 @@ volatile unsigned char * prx5;
 volatile unsigned char tx5buff[SIZEOF_TXDATA];
 volatile unsigned char rx5buff[SIZEOF_RXDATA];
 volatile unsigned char uart5_have_data = 0;
+volatile unsigned char uart5_tx_timeout = 0;
 #endif
 
 // Module Functions ------------------------------------------------------------
+void UsartTxTimeouts (void)
+{
+    if (usart1_tx_timeout)
+	usart1_tx_timeout--;
+    else if (!(USART1->CR1 & USART_CR1_RE))
+	USART1->CR1 |= USART_CR1_RE;
+
+    if (usart2_tx_timeout)
+	usart2_tx_timeout--;
+    else if (!(USART2->CR1 & USART_CR1_RE))
+	USART2->CR1 |= USART_CR1_RE;
+
+    if (uart4_tx_timeout)
+	uart4_tx_timeout--;
+    else if (!(UART4->CR1 & USART_CR1_RE))
+	UART4->CR1 |= USART_CR1_RE;
+
+    if (uart5_tx_timeout)
+	uart5_tx_timeout--;
+    else if (!(UART5->CR1 & USART_CR1_RE))
+	UART5->CR1 |= USART_CR1_RE;    
+
+}
+
+
 //---- USART1 Functions ----
 void Usart1Config(void)
 {
@@ -170,7 +202,11 @@ void Usart1Shutdown(void)
 void Usart1Send (char * send)
 {
     unsigned char i;
-    usart1_in_tx = 1;
+
+    // stop rx
+    usart1_tx_timeout = 2;
+    USART1->CR1 &= ~(USART_CR1_RE);
+		     
     i = strlen(send);
     Usart1SendUnsigned((unsigned char *) send, i);
 }
@@ -195,19 +231,18 @@ unsigned char Usart1ReadBuffer (char * bout, unsigned short max_len)
 
     if (len < max_len)
     {
-        //el prx1 siempre llega adelantado desde la int, lo corto con un 0
-        *prx1 = '\0';
-        prx1++;
-        len += 1;
-        memcpy(bout, (unsigned char *) rx1buff, len);
+        *prx1 = '\0';    // ensure '\0'
+        len += 1;    //space for '\0'
     }
     else
     {
-        memcpy(bout, (unsigned char *) rx1buff, len);
-        len = max_len;
+        *(bout + max_len - 1) = '\0';
+        len = max_len - 1;
     }
 
-    //ajusto punteros de rx luego de la copia
+    memcpy(bout, (unsigned char *) rx1buff, len);
+
+    //pointer adjust after copy
     prx1 = rx1buff;
 
     return (unsigned char) len;
@@ -225,17 +260,6 @@ void Usart1HaveDataReset (void)
     usart1_have_data = 0;
 }
 
-
-unsigned char Usart1IsSending (void)
-{
-    if (usart1_in_tx)
-        return 1;
-
-    if (USART1->SR & USART_SR_TC)
-        return 0;
-
-    return 1;
-}
 
 void USART1_IRQHandler (void)
 {
@@ -256,12 +280,7 @@ void USART1_IRQHandler (void)
             {
                 *prx1 = '\0';
                 usart1_have_data = 1;
-                // if (LED)
-                // 	LED_OFF;
-                // else
-                // 	LED_ON;
-
-            }
+	    }
             else
             {
                 *prx1 = dummy;
@@ -281,13 +300,14 @@ void USART1_IRQHandler (void)
             {
                 USART1->DR = *ptx1;
                 ptx1++;
+
+		usart1_tx_timeout = 2;
             }
             else
             {
                 ptx1 = tx1buff;
                 ptx1_pckt_index = tx1buff;
                 USART1->CR1 &= ~USART_CR1_TXEIE;
-                usart1_in_tx = 0;
             }
         }
     }
@@ -347,6 +367,10 @@ void Usart2Send (char * send)
 {
     unsigned char i;
 
+    // stop rx
+    usart2_tx_timeout = 2;
+    USART2->CR1 &= ~(USART_CR1_RE);
+
     i = strlen(send);
     Usart2SendUnsigned((unsigned char *) send, i);
 }
@@ -371,7 +395,7 @@ unsigned char Usart2ReadBuffer (char * bout, unsigned short max_len)
 
     if (len < max_len)
     {
-        *prx2 = '\0';    //buffer from int isnt ended with '\0' do it now
+        *prx2 = '\0';    // ensure '\0'
         len += 1;    //space for '\0'
     }
     else
@@ -381,6 +405,8 @@ unsigned char Usart2ReadBuffer (char * bout, unsigned short max_len)
     }
     
     memcpy(bout, (unsigned char *) rx2buff, len);    
+
+    // pointer adjust after copy
     prx2 = rx2buff;
 
     return (unsigned char) len;
@@ -427,11 +453,6 @@ void USART2_IRQHandler (void)
             {
                 *prx2 = '\0';
                 usart2_have_data = 1;
-                // if (LED)
-                // 	LED_OFF;
-                // else
-                // 	LED_ON;
-
             }
             else
             {
@@ -452,6 +473,7 @@ void USART2_IRQHandler (void)
             {
                 USART2->DR = *ptx2;
                 ptx2++;
+		usart2_tx_timeout = 2;
             }
             else
             {
@@ -525,7 +547,7 @@ void Usart3Send (char * send)
 
 void Usart3SendUnsigned (unsigned char * send, unsigned char size)
 {
-    if ((ptx3_pckt_index + size) < &tx3buff[SIZEOF_TXDATA])
+    if ((ptx3_pckt_index + size) < &tx3buff[SIZEOF_TXDATA3])
     {
         memcpy((unsigned char *)ptx3_pckt_index, send, size);
         ptx3_pckt_index += size;
@@ -534,7 +556,7 @@ void Usart3SendUnsigned (unsigned char * send, unsigned char size)
 }
 
 
-unsigned char Usart3ReadBuffer (char * bout, unsigned short max_len)
+unsigned short Usart3ReadBuffer (char * bout, unsigned short max_len)
 {
     unsigned int len;
 
@@ -542,22 +564,21 @@ unsigned char Usart3ReadBuffer (char * bout, unsigned short max_len)
 
     if (len < max_len)
     {
-        //el prx3 siempre llega adelantado desde la int, lo corto con un 0
-        *prx3 = '\0';
-        prx3++;
-        len += 1;
-        memcpy(bout, (unsigned char *) rx3buff, len);
+        *prx3 = '\0';    // ensure '\0'
+        len += 1;    //space for '\0'
     }
     else
     {
-        memcpy(bout, (unsigned char *) rx3buff, len);
-        len = max_len;
+        *(bout + max_len - 1) = '\0';
+        len = max_len - 1;
     }
 
-    //ajusto punteros de rx luego de la copia
+    memcpy(bout, (unsigned char *) rx3buff, len);
+
+    //pointer adjust after copy
     prx3 = rx3buff;
 
-    return (unsigned char) len;
+    return (unsigned short) len;
 }
 
 
@@ -573,6 +594,18 @@ void Usart3HaveDataReset (void)
 }
 
 
+unsigned char Usart3SendFinish (void)
+{
+    if (USART3->CR1 & USART_CR1_TXEIE)
+	return 0;
+
+    if (!(USART3->SR & USART_SR_TC))
+	return 0;
+
+    return 1;
+}
+
+
 void USART3_IRQHandler (void)
 {
     unsigned char dummy;
@@ -582,11 +615,15 @@ void USART3_IRQHandler (void)
     {
         dummy = USART3->DR & 0x0FF;
 
-        if (prx3 < &rx3buff[SIZEOF_RXDATA - 1])
+	Comms_Rs232_Kick ();
+	
+        if (prx3 < &rx3buff[SIZEOF_RXDATA3 - 1])
         {
-            // USART3->DR = (unsigned char) dummy;    //para debug
-
-            if ((dummy == '\n') || (dummy == '\r') || (dummy == 26))		//26 es CTRL-Z
+            //al /r no le doy bola
+            if (dummy == '\r')
+            {
+            }            
+            else if ((dummy == '\n') || (dummy == 26))		//26 es CTRL-Z
             {
                 *prx3 = '\0';
                 usart3_have_data = 1;
@@ -606,7 +643,7 @@ void USART3_IRQHandler (void)
     {
         if (USART3->SR & USART_SR_TXE)
         {
-            if ((ptx3 < &tx3buff[SIZEOF_TXDATA]) && (ptx3 < ptx3_pckt_index))
+            if ((ptx3 < &tx3buff[SIZEOF_TXDATA3]) && (ptx3 < ptx3_pckt_index))
             {
                 USART3->DR = *ptx3;
                 ptx3++;
@@ -678,6 +715,10 @@ void Uart4Send (char * send)
 {
     unsigned char i;
 
+    // stop rx
+    uart4_tx_timeout = 2;
+    UART4->CR1 &= ~(USART_CR1_RE);
+
     i = strlen(send);
     Uart4SendUnsigned((unsigned char *) send, i);
 }
@@ -702,19 +743,18 @@ unsigned char Uart4ReadBuffer (char * bout, unsigned short max_len)
 
     if (len < max_len)
     {
-        //el prx4 siempre llega adelantado desde la int, lo corto con un 0
-        *prx4 = '\0';
-        prx4++;
-        len += 1;
-        memcpy(bout, (unsigned char *) rx4buff, len);
+        *prx4 = '\0';    // ensure '\0'
+        len += 1;    //space for '\0'
     }
     else
     {
-        memcpy(bout, (unsigned char *) rx4buff, len);
-        len = max_len;
+        *(bout + max_len - 1) = '\0';
+        len = max_len - 1;
     }
 
-    //ajusto punteros de rx luego de la copia
+    memcpy(bout, (unsigned char *) rx4buff, len);
+
+    //pointer adjust after copy
     prx4 = rx4buff;
 
     return (unsigned char) len;
@@ -744,15 +784,13 @@ void UART4_IRQHandler (void)
 
         if (prx4 < &rx4buff[SIZEOF_RXDATA - 1])
         {
-            if ((dummy == '\n') || (dummy == '\r') || (dummy == 26))		//26 es CTRL-Z
+            if (dummy == '\r')
+            {
+            }            
+            else if ((dummy == '\n') || (dummy == 26))		//26 es CTRL-Z
             {
                 *prx4 = '\0';
                 uart4_have_data = 1;
-                // if (LED)
-                // 	LED_OFF;
-                // else
-                // 	LED_ON;
-
             }
             else
             {
@@ -773,6 +811,7 @@ void UART4_IRQHandler (void)
             {
                 UART4->DR = *ptx4;
                 ptx4++;
+		uart4_tx_timeout = 2;
             }
             else
             {
@@ -840,6 +879,10 @@ void Uart5Send (char * send)
 {
     unsigned char i;
 
+    // stop rx
+    uart5_tx_timeout = 2;
+    UART5->CR1 &= ~(USART_CR1_RE);
+
     i = strlen(send);
     Uart5SendUnsigned((unsigned char *) send, i);
 }
@@ -864,19 +907,18 @@ unsigned char Uart5ReadBuffer (char * bout, unsigned short max_len)
 
     if (len < max_len)
     {
-        //el prx5 siempre llega adelantado desde la int, lo corto con un 0
-        *prx5 = '\0';
-        prx5++;
-        len += 1;
-        memcpy(bout, (unsigned char *) rx5buff, len);
+        *prx5 = '\0';    // ensure '\0'
+        len += 1;    //space for '\0'
     }
     else
     {
-        memcpy(bout, (unsigned char *) rx5buff, len);
-        len = max_len;
+        *(bout + max_len - 1) = '\0';
+        len = max_len - 1;
     }
 
-    //ajusto punteros de rx luego de la copia
+    memcpy(bout, (unsigned char *) rx5buff, len);
+
+    //pointer adjust after copy
     prx5 = rx5buff;
 
     return (unsigned char) len;
@@ -906,15 +948,13 @@ void UART5_IRQHandler (void)
 
         if (prx5 < &rx5buff[SIZEOF_RXDATA - 1])
         {
-            if ((dummy == '\n') || (dummy == '\r') || (dummy == 26))		//26 es CTRL-Z
+            if (dummy == '\r')
+            {
+            }            
+            else if ((dummy == '\n') || (dummy == 26))		//26 es CTRL-Z
             {
                 *prx5 = '\0';
                 uart5_have_data = 1;
-                // if (LED)
-                // 	LED_OFF;
-                // else
-                // 	LED_ON;
-
             }
             else
             {
@@ -935,6 +975,7 @@ void UART5_IRQHandler (void)
             {
                 UART5->DR = *ptx5;
                 ptx5++;
+		uart5_tx_timeout = 2;		
             }
             else
             {

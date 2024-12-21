@@ -50,11 +50,11 @@ void Test_Comms_Send_Rs485 (void);
 int main (int argc, char *argv[])
 {
 
-    // Test_Comms_Parse_Rs485 ();
+    Test_Comms_Parse_Rs485 ();
 
     // Test_Comms_Fill_Rs485 ();
 
-    Test_Comms_Send_Rs485 ();
+    // Test_Comms_Send_Rs485 ();
 
 }
 
@@ -72,20 +72,20 @@ void Test_Comms_Parse_Rs485 (void)
     printf("parse len: %d str: %s\n", len, str);
     Comms_Parse_Rs485_Rx_Buff (str, len);
 
-    strcpy (str,";;;;");
-    len = strlen(str);
-    printf("parse len: %d str: %s\n", len, str);
-    Comms_Parse_Rs485_Rx_Buff (str, len);
+    // strcpy (str,";;;;");
+    // len = strlen(str);
+    // printf("parse len: %d str: %s\n", len, str);
+    // Comms_Parse_Rs485_Rx_Buff (str, len);
 
-    strcpy (str,"0;0;0;0;");
-    len = strlen(str);
-    printf("parse len: %d str: %s\n", len, str);
-    Comms_Parse_Rs485_Rx_Buff (str, len);
+    // strcpy (str,"0;0;0;0;");
+    // len = strlen(str);
+    // printf("parse len: %d str: %s\n", len, str);
+    // Comms_Parse_Rs485_Rx_Buff (str, len);
 
-    strcpy (str,";;0;0;");
-    len = strlen(str);
-    printf("parse len: %d str: %s\n", len, str);
-    Comms_Parse_Rs485_Rx_Buff (str, len);
+    // strcpy (str,";;0;0;");
+    // len = strlen(str);
+    // printf("parse len: %d str: %s\n", len, str);
+    // Comms_Parse_Rs485_Rx_Buff (str, len);
     
 }
 
@@ -317,6 +317,107 @@ void Uart5Send (char * b)
 
     printf("\n\n");
 }
+
+
+unsigned char Usart1HaveData (void)
+{
+    return 1;
+}
+
+unsigned char Usart2HaveData (void)
+{
+    return 1;
+}
+
+unsigned char Usart3HaveData (void)
+{
+    return 1;
+}
+
+unsigned char Uart4HaveData (void)
+{
+    return 1;
+}
+
+unsigned char Uart5HaveData (void)
+{
+    return 1;
+}
+
+
+void Usart1HaveDataReset (void)
+{
+}
+
+void Usart2HaveDataReset (void)
+{
+}
+
+void Usart3HaveDataReset (void)
+{
+}
+
+void Uart4HaveDataReset (void)
+{
+}
+
+void Uart5HaveDataReset (void)
+{
+}
+
+
+unsigned char Usart3SendFinish (void)
+{
+    return 1;
+}
+
+
+unsigned short Usart1ReadBuffer (char * bout, unsigned short max_len)
+{
+    return 0;
+}
+
+
+unsigned short Usart2ReadBuffer (char * bout, unsigned short max_len)
+{
+    return 0;
+}
+
+
+unsigned short Usart3ReadBuffer (char * bout, unsigned short max_len)
+{
+    return 0;
+}
+
+
+unsigned short Uart4ReadBuffer (char * bout, unsigned short max_len)
+{
+    return 0;
+}
+
+unsigned short Uart5ReadBuffer (char * bout, unsigned short max_len)
+{
+    return 0;
+}
+
+int led_master = 0;
+unsigned char Led_Master_Is_On (void)
+{
+    return (unsigned char) led_master;
+}
+
+void Led_Master_On (void)
+{
+    led_master = 1;
+    printf("  led master ON\n");
+}
+
+void Led_Master_Off (void)
+{
+    led_master = 0;
+    printf("  led master OFF\n");    
+}
+
 
 //--- end of file ---//
 

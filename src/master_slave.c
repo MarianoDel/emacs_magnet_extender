@@ -18,12 +18,14 @@ typedef enum {
     master_sending_data,
     master_wait_finish_data,
     master_wait_free_bus,
-    master_waiting_slave_data
+    master_waiting_slave_data,
+    master_slave_data_getted
     
 } master_states_e;
 
 typedef enum {
     slave_wait_to_get_data,
+    slave_space_before_send,
     slave_sending_data,
     slave_wait_finish_data,
     slave_wait_free_bus
@@ -76,18 +78,18 @@ void Master_Slave_In_Master (void)
     switch (master_state)
     {
     case master_ready_to_send_data:
-        Led_Slave_On();
+        Led_Master_Off();
         master_timer = 1;
         Enable_DE();
         master_state++;
         break;
 
     case master_sending_data:
-        if (!master_timer)
-        {
-            Comms_Send_Rs485_Tx_Buff();
-            master_state++;
-        }
+        if (master_timer)
+	    break;
+	
+	Comms_Send_Rs485_Tx_Buff();
+	master_state++;
         break;
 
     case master_wait_finish_data:
@@ -99,20 +101,42 @@ void Master_Slave_In_Master (void)
         break;
 
     case master_wait_free_bus:
-        if (!master_timer)
-        {
-            Disable_DE();
-            Led_Slave_Off();
-            master_timer = 150;
-            master_state++;            
-        }
+        if (master_timer)
+	    break;
+
+	Disable_DE();
+	Led_Master_On();
+	// master_timer = 150;
+	master_timer = 1000;
+	master_state++;            
         break;
         
     case master_waiting_slave_data:
+	// exit by timeout
         if (!master_timer)
-        {
-            master_state = master_ready_to_send_data;            
-        }
+	{
+	    // end for no data or timeout
+	    if (Comms_Rs232_Get_Timeout() == 0)
+		master_state = master_ready_to_send_data;
+	}
+	
+	// exit with packet processed
+	if (Comms_Update_Rs485())
+	{
+	    // packet getted and process
+	    master_state++;
+	}
+
+	// always out on timeout
+	// master_state++;
+        break;
+
+    case master_slave_data_getted:
+        if (master_timer)
+	    break;
+
+	master_state = master_ready_to_send_data;
+	
         break;
     }
 }
@@ -124,22 +148,33 @@ void Master_Slave_In_Slave (void)
     switch (slave_state)
     {
     case slave_wait_to_get_data:
+	// check for new packet
+	Comms_Update_Rs485 ();
+	
         if (Comms_Get_Packet_Ready())
         {
             Comms_Reset_Packet_Ready();
-            Led_Master_On();
-            slave_timer = 1;
-            Enable_DE();
+            Led_Slave_Off();
+            slave_timer = 5;
             slave_state++;
         }
         break;
 
+    case slave_space_before_send:
+	if (slave_timer)
+	    break;
+
+	slave_timer = 1;
+	Enable_DE();
+	slave_state++;	    
+	break;
+	
     case slave_sending_data:
-        if (!slave_timer)
-        {
-            Comms_Send_Rs485_Tx_Buff();
-            slave_state++;
-        }
+        if (slave_timer)
+	    break;
+
+	Comms_Send_Rs485_Tx_Buff();
+	slave_state++;
         break;
 
     case slave_wait_finish_data:
@@ -151,12 +186,12 @@ void Master_Slave_In_Slave (void)
         break;
 
     case slave_wait_free_bus:
-        if (!slave_timer)
-        {
-            Disable_DE();
-            Led_Master_Off();
-            slave_state = slave_wait_to_get_data;
-        }
+        if (slave_timer)
+	    break;
+
+	Disable_DE();
+	Led_Slave_On();
+	slave_state = slave_wait_to_get_data;
         break;
     }    
 }

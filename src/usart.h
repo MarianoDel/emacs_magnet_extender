@@ -16,6 +16,8 @@
 
 
 //--- Exported functions ---//
+void UsartTxTimeouts (void);
+
 void Usart1Config (void);
 void Usart1Shutdown (void);
 void Usart1Send (char *);
@@ -24,7 +26,6 @@ unsigned char Usart1ReadBuffer (char *, unsigned short);
 unsigned char Usart1HaveData (void);
 void Usart1HaveDataReset (void);
 void USART1_IRQHandler (void);
-unsigned char Usart1IsSending (void);
 
 void Usart2Config (void);
 void Usart2Shutdown (void);
@@ -40,9 +41,10 @@ void Usart3Config (void);
 void Usart3Shutdown (void);
 void Usart3Send (char *);
 void Usart3SendUnsigned (unsigned char *, unsigned char);
-unsigned char Usart3ReadBuffer (char *, unsigned short);
+unsigned short Usart3ReadBuffer (char *, unsigned short);
 unsigned char Usart3HaveData (void);
 void Usart3HaveDataReset (void);
+unsigned char Usart3SendFinish (void);
 void USART3_IRQHandler (void);
 
 #ifdef STM32F10X_HD

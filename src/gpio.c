@@ -108,7 +108,7 @@ void GpioInit (void)
     // PA7 NC
     temp = GPIOA->CRL;
     temp &= 0xFFFF00FF;
-    temp |= 0x00006F00;
+    temp |= 0x00004F00;
     GPIOA->CRL = temp;
 
     //--- GPIOA High Side ------------------//
@@ -122,7 +122,7 @@ void GpioInit (void)
     //PA15 NC
     temp = GPIOA->CRH;
     temp &= 0xFFFFF00F;
-    temp |= 0x000006F0;
+    temp |= 0x000004F0;
     GPIOA->CRH = temp;
 
     //--- GPIOA Pull-Up Pull-Dwn ------------------//
@@ -148,15 +148,15 @@ void GpioInit (void)
     //--- GPIOB High Side -------------------//
     //PB8 NC
     //PB9 NC
-    //PB10 alternative Tx Usart3
-    //PB11 alternative Rx Usart3
+    //PB10 Alternative Tx Usart3
+    //PB11 Alternative Rx Usart3
     //PB12 LED_SLAVE
     //PB13 LED_MASTER
     //PB14 LED_ERROR
     //PB15 MASTER_SLAVE
     temp = GPIOB->CRH;
     temp &= 0x000000FF;
-    temp |= 0x82226200;
+    temp |= 0x82224A00;
     GPIOB->CRH = temp;    
     
     //--- GPIOB Pull-Up Pull-Dwn ------------------//
@@ -190,7 +190,7 @@ void GpioInit (void)
     //PC15 NC    oscillator
     temp = GPIOC->CRH;   
     temp &= 0xFFF000FF;
-    temp |= 0x000F6F00;
+    temp |= 0x000F4F00;
     GPIOC->CRH = temp;
 
     //--- GPIOC Pull-Up Pull-Dwn ------------------//
@@ -210,7 +210,7 @@ void GpioInit (void)
     //PD7 No implemented    
     temp = GPIOD->CRL;   
     temp &= 0xFFFFF0FF;
-    temp |= 0x00000600;
+    temp |= 0x00000400;
     GPIOD->CRL = temp;
 
     //--- GPIOD Pull-Up Pull-Dwn ------------------//

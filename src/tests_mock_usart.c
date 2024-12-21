@@ -205,9 +205,9 @@ void Usart3HaveDataReset (void)
     usart3_have_data = 0;
 }
 
-unsigned char Usart3ReadBuffer (unsigned char * bout, unsigned short max_len)
+unsigned short Usart3ReadBuffer (unsigned char * bout, unsigned short max_len)
 {
-    unsigned char len = 0;
+    unsigned short len = 0;
     len = strlen(usart3_msg_received);
     if (max_len > len)
         strcpy(bout, usart3_msg_received);
