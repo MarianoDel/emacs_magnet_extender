@@ -134,25 +134,15 @@ void Comms_Send_Channels_Buffer (unsigned char which_buff, char * buff, unsigned
     strncpy(lbuff, buff, len);
     lbuff[len] = '\0';
     strcat(lbuff, "\r\n");
-    // lbuff[len] = '\n';
     
     switch (which_buff)
     {
     case 0:
         UsartChannel1Send(lbuff);
-
-	// if (Led_Master_Is_On())
-	//     Led_Master_Off();
-	// else
-	//     Led_Master_On();
         break;
 
     case 1:
         UsartChannel2Send(lbuff);
-	if (Led_Master_Is_On())
-	    Led_Master_Off();
-	else
-	    Led_Master_On();
         break;
 
     case 2:
