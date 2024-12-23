@@ -107,7 +107,8 @@ void Master_Slave_In_Master (void)
 	Disable_DE();
 	Led_Master_On();
 	// master_timer = 150;
-	master_timer = 1000;
+	master_timer = 200;	
+	// master_timer = 1000;
 	master_state++;            
         break;
         
